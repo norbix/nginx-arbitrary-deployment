@@ -1,0 +1,13 @@
+apiVersion: v2
+
+name: nginx-arbitrary-deployment
+
+description: A Helm chart for Nginx Arbitrary Deployment
+
+version: 0.1.0
+
+appVersion: "1.16.0"
+
+maintainers:
+  - name: Norbix
+    email: norbert[DOT]jakubczak[AT]gmail[DOT]com

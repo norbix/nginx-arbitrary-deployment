@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+{{/*#  name: {{ include "nginx-arbitrary-deployment.fullname" . }}*/}}
+  name: "nginx-sofixit"                                                                                                 #NOTE: hack just for the purpose of demo
+  labels:
+    {{- include "nginx-arbitrary-deployment.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.frontend.service.type }}
+  ports:
+    - port: {{ .Values.frontend.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "nginx-arbitrary-deployment.selectorLabels" . | nindent 4 }}
