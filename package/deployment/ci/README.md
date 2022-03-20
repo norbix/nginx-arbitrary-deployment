@@ -1,4 +1,4 @@
-# Local CI/CD via skaffold 
+# Local CI/CD via skaffold DSL 
 
 ```sh 
 norbix@norbix-laptop1-lin20 ~/Desktop/corpo/codebases/priv/nginx-arbitrary-deployment (main) $ SKAFFOLD_CONFIG=./package/utils/SKAFFOLD_CONFIG/config.yaml skaffold run -f package/deployment/ci/skaffold.yaml 
@@ -44,7 +44,7 @@ replicaset.apps/nginx-arbitrary-deployment-frontend-6774c45dc   1         1     
 norbix@norbix-laptop1-lin20 ~/Desktop/corpo/codebases/priv/nginx-arbitrary-deployment (main) $ 
 ```
 
-# Local CI/CD via cmd line 
+# Local CI/CD via cmd REPL
 
 ```sh 
 cd package/deployment/helm/nginx-arbitrary-deployment/
