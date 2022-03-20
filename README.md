@@ -1,4 +1,4 @@
-# nginx-arbitrary-deployment
+# nginx-arbitrary-deployment (NSIK)
 
 ## General info 
 
