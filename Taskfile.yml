@@ -1,0 +1,133 @@
+version: '3'
+
+silent: true
+
+output: 'interleaved'
+
+dotenv: ['.env']
+
+vars:
+  VENDOR: 'norbix'
+  PROJECT_NAME: 'nginx-arbitrary-deployment'
+  SOLUTION_NAME: 'nginx-arbitrary-deployment'
+  CMD_KUBECTL_VERSION: '{{ "v1.23.1" | default "TASK_REPLACE" }}'
+  CMD_KUBECTL: '{{ "kubectl" | default "TASK_REPLACE" }}'                                                               #NOTE: fail-fast pattern using REPLACE placeholder for debugging eval
+  CMD_HELM_VERSION: '{{ "v3.7.2" | default "TASK_REPLACE" }}'
+  CMD_HELM: '{{ "helm" | default "TASK_REPLACE" }}'
+  CMD_KIND: '{{ "kind" | default "TASK_REPLACE" }}'
+  NS: 'default'                                                                                                         #NOTE: implicit
+  DIND_VERSION: '{{ "19.03.8-dind" | default "REPLACE" }}'
+  DIND_COMMAND: 'docker run --name {{.VENDOR}}-crc
+                                -h {{.VENDOR}}-crc
+                                -it
+                                --rm
+                                --privileged
+                                -u root:root
+                                -v $(pwd)/:/mnt/codebase/{{.PROJECT_NAME}}:rw
+                                -v ${HOME}/.bashrc:/root/.bashrc:rw
+                                -v /etc/hosts:/mnt/hosts:rw
+                                -v /var/run:/var/run:rw
+                                -e HOME=/root
+                                --entrypoint=""
+                                -w /root
+                                docker:{{.DIND_VERSION}}'
+
+tasks:
+  default:
+    desc: 'List all commands defined.'
+    cmds:
+      - 'task -l'
+    silent: true
+
+  # Docker
+  docker:provision-code-ready-container:
+    desc: 'Provision local dev env with dind container (Code Ready Container a/k/a CRC)'
+    summary: |
+      Provisions the following utils:
+      - kubectl
+      - helm
+      - modd
+      - kind
+      - task
+
+      Allows to reach dockerd from within container runtime e.g. ```sh docker ps```
+    cmds:
+      - 'echo +INFO: Running function -> {{.TASK}}'
+      - "{{.DIND_COMMAND}} sh -c '(
+                                    echo [Lambda][Chain][Sync][Transaction] Provisioning of utils from APK marketplace... ;
+                                    apk update &&
+                                    apk upgrade &&
+                                    apk add --no-cache curl \
+                                                       jq \
+                                                       git \
+                                                       openssh-client \
+                                                       bash \
+                                                       python3 \
+                                                       links \
+                                                       file \
+                                                       tree \
+                                                       make &&
+                                    apk add --no-cache --virtual .docker-compose-deps \
+                                                                  python3-dev \
+                                                                  libffi-dev \
+                                                                  openssl-dev \
+                                                                  gcc \
+                                                                  libc-dev
+                                  ) &&
+                                  (
+                                    echo [Lambda] Provisioning of python utils from PIP marketplace... ;
+                                    pip3 install --upgrade pip ;
+                                    pip3 install docker-compose ;
+                                    apk del .docker-compose-deps
+                                  ) &&
+                                  (
+                                    echo [Lambda] Provisioning of taskfile wrapper from the internet... ;
+                                    sh -c \"$(curl --location https://taskfile.dev/install.sh)\" -- -d -b /usr/local/bin
+                                  ) &&
+                                  (
+                                    echo [Lambda] Provisioning of modd util from the internet... ;
+                                    wget -O /tmp/modd-0.8-linux64.tgz https://github.com/cortesi/modd/releases/download/v0.8/modd-0.8-linux64.tgz &&
+                                    tar xvfz /tmp/modd-0.8-linux64.tgz -C /tmp &&
+                                    mv /tmp/modd-0.8-linux64/modd /usr/local/bin/
+                                  ) &&
+                                  (
+                                    echo [Lambda] Provisioning of kind provisioner from the internet... ;
+                                    curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.11.1/kind-linux-amd64 &&
+                                    chmod +x ./kind &&
+                                    mv ./kind /usr/local/bin
+                                  ) &&
+                                  (
+                                    echo [Lambda] Provisioning kubectl wrapper from the internet... ;
+                                    cd /tmp &&
+                                    curl -LO https://dl.k8s.io/release/{{.CMD_KUBECTL_VERSION}}/bin/linux/amd64/kubectl &&
+                                    mv ./kubectl /usr/local/bin/kubectl &&
+                                    chmod +x /usr/local/bin/kubectl
+                                  ) &&
+                                  (
+                                    echo [Lambda] Provisioning helm wrapper from the internet... ;
+                                    cd /tmp &&
+                                    curl -LO https://get.helm.sh/helm-{{.CMD_HELM_VERSION}}-linux-amd64.tar.gz &&
+                                    tar xvfz ./helm-{{.CMD_HELM_VERSION}}-linux-amd64.tar.gz &&
+                                    mv linux-amd64/helm /usr/local/bin
+                                  ) &&
+                                  cd /mnt/codebase/{{.PROJECT_NAME}} &&
+                                  bash || ash || sh'"
+
+  docker:provision-kind:
+    desc: 'Provision locally Kind K8s cluster.'
+    cmds:
+      - 'echo +INFO: Running function -> {{.TASK}}'
+      - 'rm -rf {{.HOME}}/.kube/config.kind'
+      #NOTE: sync integration example
+      - '(
+          {{ .CMD_KIND }} create cluster --name {{.SOLUTION_NAME}}.cluster --kubeconfig {{.HOME}}/.kube/config.kind
+         ) ||
+         (
+          {{ .CMD_KIND }} delete clusters {{.SOLUTION_NAME}}.cluster &&
+          {{ .CMD_KIND }} create cluster --name {{.SOLUTION_NAME}}.cluster --kubeconfig {{.HOME}}/.kube/config.kind
+         )'
+      - 'echo'
+      - 'echo Execute manually the following commands:'
+      - 'echo "export KUBECONFIG={{.HOME}}/.kube/config.kind"'                                                          #HINT: run with eval
+    vars:
+      HOME: '$(echo $HOME)'
