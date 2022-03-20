@@ -1,0 +1,4 @@
+global:
+kubeContexts:
+- kube-context: kind-nginx-arbitrary-deployment.cluster
+  local-cluster: true

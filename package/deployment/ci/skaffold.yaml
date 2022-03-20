@@ -1,0 +1,18 @@
+#NOTE: ontract https://skaffold.dev/docs/references/yaml/?version=v2beta2
+
+apiVersion: skaffold/v2beta2
+kind: Config
+metadata:
+  name: 'nginx-arbitrary-deployment solution'
+deploy:
+  kubeContext: kind-nginx-arbitrary-deployment.cluster
+  statusCheckDeadlineSeconds: 240
+  helm:
+    flags:
+      install: [ "--timeout", "10m0s" ]
+      upgrade: [ "--timeout", "10m0s" ]
+    releases:
+    - name: nginx
+      namespace: default
+      chartPath: ./package/deployment/helm/nginx-arbitrary-deployment
+      valuesFiles: [ "./package/deployment/helm/nginx-arbitrary-deployment/values.yaml" ]
