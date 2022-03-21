@@ -10,8 +10,6 @@ Demonstrates deployment of nginx solution into K8s with helm.
 norbix@norbix-laptop1-lin20 ~/Desktop/corpo/codebases/priv/nginx-arbitrary-deployment (main) $ tree -L 7 ./
 ./
 ├── ~
-├── docker:provision-code-ready-container
-├── docker:provision-kind
 ├── LICENSE
 ├── package
 │   └── deployment
