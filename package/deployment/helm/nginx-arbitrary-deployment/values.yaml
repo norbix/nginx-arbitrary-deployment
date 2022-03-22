@@ -51,7 +51,7 @@ frontend:
     # runAsUser: 1000
 
   service:
-    type: ClusterIP
+    type: NodePort                                                                                                      #HINT: also gets ClusterIP
     port: 80
     name: nginx-sofixit                                                                                                 #NOTE: hack just for the purpose of demo
 
