@@ -61,7 +61,7 @@ helm upgrade --install nginx-arbitrary-deployment .
 k get all,ing 
 helm list 
 k exec -it pod/nginx-arbitrary-deployment-5d894d7767-7tvgr bash
-apt-get update -y; apt-get install procps curl vim -y
+apt-get update -y; apt-get install procps curl vim apache2-utils -y
 alias ll='ls -la'
 ps -ef
 ll /etc/nginx/

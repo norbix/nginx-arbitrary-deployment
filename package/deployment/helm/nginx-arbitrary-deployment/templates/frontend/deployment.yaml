@@ -51,11 +51,17 @@ spec:
           volumeMounts:
             - mountPath: /cache
               name: cache-volume
+            - mountPath: /mnt
+              name: pvol-volume
+            - mountPath: /default.conf
+              name: config-volume
+              subPath: default.conf
             - mountPath: /etc/nginx/nginx.conf
               name: config-volume
               subPath: nginx.conf
-            - mountPath: /mnt
-              name: pvol-volume
+            - mountPath: /.htpasswd
+              name: config-volume
+              subPath: .htpasswd
       volumes:
         - name: pvol-volume
           persistentVolumeClaim:
@@ -68,6 +74,10 @@ spec:
             items:
               - key: nginx.conf
                 path: nginx.conf
+              - key: default.conf
+                path: default.conf
+              - key: .htpasswd
+                path: .htpasswd
       {{- with .Values.frontend.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
