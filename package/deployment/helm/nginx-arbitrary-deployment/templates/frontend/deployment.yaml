@@ -54,7 +54,12 @@ spec:
             - mountPath: /etc/nginx/nginx.conf
               name: config-volume
               subPath: nginx.conf
+            - mountPath: /mnt
+              name: pvol-volume
       volumes:
+        - name: pvol-volume
+          persistentVolumeClaim:
+            claimName: test-pvc
         - name: cache-volume
           emptyDir: { }
         - name: config-volume

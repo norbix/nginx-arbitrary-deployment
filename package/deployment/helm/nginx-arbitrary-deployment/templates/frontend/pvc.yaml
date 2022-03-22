@@ -1,0 +1,43 @@
+---
+apiVersion: 'storage.k8s.io/v1'
+kind: 'StorageClass'
+metadata:
+  name: 'hostpath'
+provisioner: 'kubernetes.io/no-provisioner'
+volumeBindingMode: 'WaitForFirstConsumer'
+---
+apiVersion: 'v1'
+kind: 'PersistentVolume'
+metadata:
+  name: 'test-pv'
+  labels:
+    type: 'local'
+spec:
+  storageClassName: 'hostpath'
+  capacity:
+    storage: '2Gi'
+  accessModes:
+    - 'ReadWriteOnce'
+  volumeMode: Filesystem
+  local:
+    path: /mnt
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - nginx-arbitrary-deployment.cluster-control-plane
+---
+apiVersion: 'v1'
+kind: 'PersistentVolumeClaim'
+metadata:
+  name: 'test-pvc'
+spec:
+  storageClassName: "hostpath"
+  accessModes:
+    - 'ReadWriteOnce'
+  resources:
+    requests:
+      storage: '1Gi'

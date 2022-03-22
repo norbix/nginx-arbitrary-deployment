@@ -48,7 +48,13 @@ norbix@norbix-laptop1-lin20 ~/Desktop/corpo/codebases/priv/nginx-arbitrary-deplo
 
 ```sh 
 cd package/deployment/helm/nginx-arbitrary-deployment/
+# Eval
 helm upgrade --install --debug --dry-run nginx-arbitrary-deployment .
+
+# Deploy
+helm upgrade --install nginx-arbitrary-deployment .
+
+# REPL debug
 k get ns
 k get all,ing
 helm upgrade --install nginx-arbitrary-deployment .
